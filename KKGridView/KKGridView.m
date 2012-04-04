@@ -902,6 +902,9 @@ struct KKSectionMetrics {
 
 - (void)insertItemsAtIndexPaths:(NSArray *)indexPaths withAnimation:(KKGridViewAnimation)animation
 {
+    if (!indexPaths.count)
+        return;
+    
     [self _reloadMetrics];
     
     for (KKIndexPath *indexPath in [indexPaths sortedArrayUsingSelector:@selector(compare:)])
@@ -972,6 +975,9 @@ struct KKSectionMetrics {
 
 - (void)deleteItemsAtIndexPaths:(NSArray *)indexPaths withAnimation:(KKGridViewAnimation)animation
 {
+    if (!indexPaths.count)
+        return;
+    
     [self _reloadMetrics];
     
     for (KKIndexPath *indexPath in [indexPaths sortedArrayUsingSelector:@selector(compare:)]) {
@@ -1005,6 +1011,9 @@ struct KKSectionMetrics {
 
 - (void)reloadItemsAtIndexPaths:(NSArray *)indexPaths
 {
+    if (!indexPaths.count)
+        return;
+    
     for (KKIndexPath *path in indexPaths) {
         KKGridViewCell *cell = [_visibleCells objectForKey:path];
         if (cell) {
@@ -1546,7 +1555,9 @@ struct KKSectionMetrics {
 
 - (void) _removeUnusedCells
 {
-    [_reusableCells.allValues makeObjectsPerformSelector:@selector(removeFromSuperview)];
+	[_reusableCells enumerateKeysAndObjectsUsingBlock:^(id key, id object, BOOL *stop) {
+		[object makeObjectsPerformSelector:@selector(removeFromSuperview)];
+	}];
     
     [_reusableCells removeAllObjects];
 }
