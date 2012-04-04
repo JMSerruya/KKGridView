@@ -14,8 +14,6 @@
 #import <KKGridView/KKGridViewCell.h>
 #import <KKGridView/KKGridViewIndexView.h>
 
-#define KKGridViewDefaultAnimationStaggerInterval 0.025
-
 struct KKSectionMetrics {
     CGFloat footerHeight;
     CGFloat headerHeight;
@@ -133,6 +131,7 @@ struct KKSectionMetrics {
 - (void) _removeUnusedCells;
 
 // Animation Helpers
++ (void)animateIf:(BOOL)animated duration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UIViewAnimationOptions)options block:(void(^)())block;
 + (void)animateIf:(BOOL)animated delay:(NSTimeInterval)delay options:(UIViewAnimationOptions)options block:(void(^)())block;
 @end
 
@@ -708,10 +707,8 @@ struct KKSectionMetrics {
         cell.hidden = NO;
         cell.alpha = 1.;
     } else {
-        if (_backgroundView)
-            [self insertSubview:cell atIndex:(_rowViews.count + 1)];
-        else
-            [self insertSubview:cell atIndex:_rowViews.count];
+        BOOL subviewIndex = _backgroundView ? _rowViews.count + 1 : _rowViews.count;
+        [self insertSubview:cell atIndex:subviewIndex];
     }
     
     switch (animation) {
@@ -792,7 +789,7 @@ struct KKSectionMetrics {
 - (KKIndexPath *)indexPathForItemAtPoint:(CGPoint)point
 {
     NSArray *indexes = [self indexPathsForItemsInRect:(CGRect){ point, {1.f, 1.f } }];
-    return ([indexes count] > 0) ? [indexes objectAtIndex:0] : [KKIndexPath indexPathForIndex:NSNotFound inSection:NSNotFound];
+    return indexes.count > 0 ? [indexes objectAtIndex:0] : [KKIndexPath indexPathForIndex:NSNotFound inSection:NSNotFound];
 }
 
 - (CGRect)rectForCellAtIndexPath:(KKIndexPath *)indexPath
@@ -1318,24 +1315,18 @@ struct KKSectionMetrics {
         return;
     }
     
-    if (animated) {
-        [UIView beginAnimations:nil context:NULL];
-        [UIView setAnimationDuration:0.3];
-    }
-    
     CGFloat boundsHeight = self.bounds.size.height - self.contentInset.bottom;
     CGFloat headerPlusPadding = _metrics.sections[indexPath.section].headerHeight + self.cellPadding.height;
     
-    CGFloat offsetMap[] = {
-        [KKGridViewScrollPositionTop] = CGRectGetMinY(cellRect) + self.contentInset.top - headerPlusPadding,
-        [KKGridViewScrollPositionBottom] = CGRectGetMaxY(cellRect) - boundsHeight + headerPlusPadding,
-        [KKGridViewScrollPositionMiddle] = CGRectGetMaxY(cellRect) - (boundsHeight / 2)
-    };
-    
-    self.contentOffset = (CGPoint) {.y = offsetMap[scrollPosition]};
-    
-    if (animated)
-        [UIView commitAnimations];
+    [KKGridView animateIf:animated duration:0.3 delay:0.f options:0 block:^{
+        CGFloat const offsetMap[] = {
+            [KKGridViewScrollPositionTop] = CGRectGetMinY(cellRect) + self.contentInset.top - headerPlusPadding,
+            [KKGridViewScrollPositionBottom] = CGRectGetMaxY(cellRect) - boundsHeight + headerPlusPadding,
+            [KKGridViewScrollPositionMiddle] = CGRectGetMaxY(cellRect) - (boundsHeight / 2)
+        };
+        
+        self.contentOffset = (CGPoint) {.y = offsetMap[scrollPosition]};
+    }];
 }
 
 #pragma mark - Public Selection Methods
@@ -1534,7 +1525,7 @@ struct KKSectionMetrics {
 
 #pragma mark - KVO
 
-- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if ([keyPath isEqualToString:@"contentOffset"]) {
         _indexView.frame = (CGRect) {
@@ -1542,7 +1533,9 @@ struct KKSectionMetrics {
             _indexView.frame.size
         };
         [self _cancelHighlighting];
-    } else if ([keyPath isEqualToString:@"tracking"]) {
+    }
+    
+    else if ([keyPath isEqualToString:@"tracking"]) {
         if (self.tracking && !self.dragging) {
             [self _cancelHighlighting];
         }
@@ -1565,12 +1558,17 @@ struct KKSectionMetrics {
 
 #pragma mark - Animation Helpers
 
-+ (void)animateIf:(BOOL)animated delay:(NSTimeInterval)delay options:(UIViewAnimationOptions)options block:(void(^)())block
++ (void)animateIf:(BOOL)animated duration:(NSTimeInterval)duration delay:(NSTimeInterval)delay options:(UIViewAnimationOptions)options block:(void(^)())block
 {
     if (animated)
-        [UIView animateWithDuration:KKGridViewDefaultAnimationDuration delay:delay options:options animations:block completion:nil];
+        [UIView animateWithDuration:duration delay:delay options:options animations:block completion:nil];
     else
         block();
+}
+
++ (void)animateIf:(BOOL)animated delay:(NSTimeInterval)delay options:(UIViewAnimationOptions)options block:(void(^)())block
+{
+    [self animateIf:animated duration:KKGridViewDefaultAnimationDuration delay:delay options:options block:block];
 }
 
 @end
