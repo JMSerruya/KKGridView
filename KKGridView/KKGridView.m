@@ -1553,9 +1553,7 @@ struct KKSectionMetrics {
 
 - (void) _removeUnusedCells
 {
-    [_reusableCells enumerateKeysAndObjectsUsingBlock:^(id key, id object, BOOL *stop) {
-        [object makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    }];
+    [_reusableCells.allValues makeObjectsPerformSelector:@selector(removeFromSuperview)];
     
     [_reusableCells removeAllObjects];
 }
