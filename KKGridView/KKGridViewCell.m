@@ -57,6 +57,9 @@
 - (id)initWithFrame:(CGRect)frame reuseIdentifier:(NSString *)reuseIdentifier
 {
     if ((self = [super initWithFrame:frame])) {
+        self.isAccessibilityElement = YES;
+		self.accessibilityTraits = UIAccessibilityTraitStaticText;
+        
         _reuseIdentifier = reuseIdentifier;
         
         _backgroundView = [[UIView alloc] initWithFrame:self.bounds];
@@ -261,6 +264,8 @@
     }
     
     [self _layoutAccessories];
+
+	UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, nil);
 }
 
 - (void)_layoutAccessories
