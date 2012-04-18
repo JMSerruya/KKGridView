@@ -971,6 +971,8 @@ struct KKSectionMetrics {
     [self _performRemainingUpdatesModelOnly];
     
     [self _commonReload];
+
+	UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
 }
 
 - (void)deleteItemsAtIndexPaths:(NSArray *)indexPaths withAnimation:(KKGridViewAnimation)animation
@@ -990,6 +992,8 @@ struct KKSectionMetrics {
     [self _layoutGridView];
     [self _performRemainingUpdatesModelOnly];
     [self _removeUnusedCells];
+
+	UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
 }
 
 - (void)moveItemAtIndexPath:(KKIndexPath *)indexPath toIndexPath:(KKIndexPath *)newIndexPath
@@ -1321,6 +1325,11 @@ struct KKSectionMetrics {
     CGRect cellRect = [self rectForCellAtIndexPath:indexPath];
     if (scrollPosition == KKGridViewScrollPositionNone) {
         [self scrollRectToVisible:cellRect animated:animated];
+        
+		if (&UIAccessibilityPageScrolledNotification) {
+			UIAccessibilityPostNotification(UIAccessibilityPageScrolledNotification, @"");
+		}
+        
         return;
     }
     
