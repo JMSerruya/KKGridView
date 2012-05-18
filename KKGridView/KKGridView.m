@@ -1257,8 +1257,7 @@ struct KKSectionMetrics {
 
 - (void)_cleanupMetrics
 {
-    if (_metrics.sections)
-        free(_metrics.sections);
+    free(_metrics.sections);
     
     _metrics = (struct KKMetricsArray){ NULL, 0 };
 }
