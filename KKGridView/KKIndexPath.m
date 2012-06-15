@@ -103,6 +103,17 @@
     return indexPath;
 }
 
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+	[aCoder encodeInt:_index forKey:@"index"];
+	[aCoder encodeInt:_section forKey:@"section"];
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+	return [[self class] indexPathForIndex:[aDecoder decodeIntForKey:@"index"] inSection:[aDecoder decodeIntForKey:@"section"]];
+}
+
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"%@ {Index: %i; Section: %i}", 
@@ -128,4 +139,10 @@
 	return indexPath;
 }
 
+#pragma mark - NSSecureCoding
+
++ (BOOL) supportsSecureCoding
+{
+	return NO;
+}
 @end

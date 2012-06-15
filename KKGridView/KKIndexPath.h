@@ -6,7 +6,7 @@
 //  Copyright 2011 Giulio Petek, Jonathan Sterling, and Kolin Krewinkel. All rights reserved.
 //
 
-@interface KKIndexPath : NSObject <NSCopying>
+@interface KKIndexPath : NSObject <NSCopying, NSSecureCoding>
 + (KKIndexPath *)zeroIndexPath;
 + (NSArray *)indexPathsWithNSIndexPaths:(NSArray *)indexPaths;
 
