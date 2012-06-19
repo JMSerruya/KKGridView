@@ -1221,13 +1221,16 @@ struct KKSectionMetrics {
     // start over.
     BOOL arrayIsCorrectSize = _metrics.count == numberOfSections;
     
-    struct KKSectionMetrics *metricsArray = _metrics.sections;
+    struct KKSectionMetrics *metricsArray = NULL;
     
     if (!arrayIsCorrectSize)
     {
         [self _cleanupMetrics];
         metricsArray = calloc(numberOfSections, sizeof(struct KKSectionMetrics));
-    }
+    } else
+	{
+		metricsArray = _metrics.sections;
+	}
     
     
     NSUInteger index;
