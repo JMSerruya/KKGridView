@@ -1155,7 +1155,11 @@ struct KKSectionMetrics {
 
 - (void)reloadData
 {
-    NSAssert([NSThread isMainThread],@"-[KKGridView reloadData] must be sent from the main thread.");
+    if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:_cmd withObject:nil waitUntilDone:YES];
+
+		return;
+	}
     
     [self _commonReload];
     // cells are saved in _reusableCells container to re-use them later on
