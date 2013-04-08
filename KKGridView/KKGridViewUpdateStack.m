@@ -32,6 +32,13 @@
     return self;
 }
 
+- (void)dealloc
+{
+    // No call to super as this only meant to be compiled with ARC
+    
+    CFRelease(_availableUpdates); // ARC does not manage CF objects, manually releaseing here
+}
+
 - (void)addUpdates:(NSArray *)updates
 {
     for (KKGridViewUpdate *update in updates) {
